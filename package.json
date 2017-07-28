@@ -1,0 +1,21 @@
+{
+  "name": "imagemin-kitchensink",
+  "version": "1.0.0",
+  "description": "Runs PNG optimization with preset values. Currently equivalent to ImageOptim extreme present.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "advpng-bin": "^3.0.0",
+    "exec-buffer": "^3.2.0",
+    "imagemin": "^5.3.1",
+    "is-png": "^1.1.0",
+    "optipng-bin": "^4.0.0",
+    "pngout-bin": "^3.0.0",
+    "zopflipng-bin": "^4.0.0"
+  },
+  "devDependencies": {}
+}
