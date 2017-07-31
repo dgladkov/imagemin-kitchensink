@@ -1,22 +1,38 @@
 const imagemin = require('imagemin');
 const execBuffer = require('exec-buffer');
 const isPng = require('is-png');
+const isJpg = require('is-jpg');
+const tempfile = require('tempfile');
+
+// PNG
 const optipng = require('optipng-bin');
 const pngout = require('pngout-bin');
 const zopfli = require('zopflipng-bin');
 const advpng = require('advpng-bin');
+// JPG
+const jpegtran = require('jpegtran-bin');
+const jpegoptim = require('jpegoptim-bin');
 
-const plugin = ({ bin, args, predicate }) => buf => {
+const typeCheckers = {
+  png: isPng,
+  jpg: isJpg,
+};
+
+const plugin = ({ bin, args, type, inplace = false }) => buf => {
   if (!Buffer.isBuffer(buf)) {
     return Promise.reject(new TypeError('Expected a buffer'));
   }
-  if (!predicate(buf)) {
+  if (!typeCheckers[type](buf)) {
     return Promise.resolve(buf);
   }
+  const inputPath = tempfile('.' + type);
+  const outputPath = inplace ? inputPath : tempfile('.' + type);
   return execBuffer({
     input: buf,
     bin,
-    args
+    args,
+    inputPath,
+    outputPath,
   }).catch(err => {
     err.message = err.stderr || err.message;
     throw err;
@@ -24,6 +40,7 @@ const plugin = ({ bin, args, predicate }) => buf => {
 };
 
 const losslessPlugins = [
+  // PNG
   plugin({
     bin: optipng,
     args: [
@@ -32,7 +49,7 @@ const losslessPlugins = [
       '-out', execBuffer.output,
       execBuffer.input,
     ],
-    predicate: isPng,
+    type: 'png',
   }),
   plugin({
     bin: pngout,
@@ -40,12 +57,11 @@ const losslessPlugins = [
       execBuffer.input,
       execBuffer.output,
     ],
-    predicate: isPng,
+    type: 'png',
   }),
   plugin({
     bin: zopfli,
     args: [
-      '--timelimit=20',
       '--iterations=21',
       '--filters=0pme',
       '--lossy_transparent',
@@ -53,7 +69,7 @@ const losslessPlugins = [
       execBuffer.input,
       execBuffer.output,
     ],
-    predicate: isPng,
+    type: 'png',
   }),
   plugin({
     bin: advpng,
@@ -62,15 +78,37 @@ const losslessPlugins = [
       '-z',
       execBuffer.input,
     ],
-    predicate: isPng,
+    type: 'png',
+    inplace: true,
+  }),
+  // JPG
+  plugin({
+    bin: jpegtran,
+    args: [
+      '-copy', 'none',
+      '-optimize',
+      '-outfile', execBuffer.output,
+      execBuffer.input,
+    ],
+    type: 'jpg',
+  }),
+  plugin({
+    bin: jpegoptim,
+    args: [
+      '--strip-all',
+      '--all-normal',
+      execBuffer.input,
+    ],
+    type: 'jpg',
+    inplace: true,
   }),
 ];
 
 const lossyPlugins = [
-
+  // TODO add lossy JPEG/PNG pipeline
 ];
 
-module.exports = (input, output, lossy) => {
+module.exports = (input, output, lossy = false) => {
   return imagemin(input, output, {
     plugins: lossy ? lossyPlugins.concat(losslessPlugins) : losslessPlugins,
   });
