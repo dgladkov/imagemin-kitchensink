@@ -6,18 +6,26 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "imagemin-kitchensink": "cli.js"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "advpng-bin": "^3.0.0",
     "exec-buffer": "^3.2.0",
+    "get-stdin": "^5.0.1",
     "imagemin": "^5.3.1",
     "is-jpg": "^1.0.0",
     "is-png": "^1.1.0",
     "jpegoptim-bin": "^3.0.0",
     "jpegtran-bin": "^3.2.0",
+    "meow": "^3.7.0",
     "optipng-bin": "^4.0.0",
+    "ora": "^1.3.0",
+    "plur": "^2.1.2",
     "pngout-bin": "^3.0.0",
+    "strip-indent": "^2.0.0",
     "tempfile": "^2.0.0",
     "zopflipng-bin": "^4.0.0"
   },

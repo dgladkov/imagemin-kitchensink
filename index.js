@@ -113,3 +113,9 @@ module.exports = (input, output, lossy = false) => {
     plugins: lossy ? lossyPlugins.concat(losslessPlugins) : losslessPlugins,
   });
 }
+
+module.exports.buffer = (input, lossy = false) => {
+  return imagemin.buffer(input, {
+    plugins: lossy ? lossyPlugins.concat(losslessPlugins) : losslessPlugins,
+  });
+}
